@@ -2783,15 +2783,6 @@ def setNodeId(value):
     dpmu_type_od.setID(value)
     nodeid_od.setID(value)
 
-# def compressFile(unZipedFile):
-#     archive_name = f'{unZipedFile}.zip'
-#     # below one line of code will create a 'Zip' in the current working directory
-#     with zipfile.ZipFile(archive_name, 'w') as file:
-#         print("{} is created.".format(archive_name))
-#         file.write(unZipedFile)
-
-#     with zipfile.ZipFile(archive_name, 'r') as file:
-#         print(file.namelist())
 
 def compressFile(unZipedFile):
     archive_name = f'{unZipedFile}.zip'
