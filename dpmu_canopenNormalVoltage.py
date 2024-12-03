@@ -12,6 +12,7 @@ from _multiprocessing import send
 import pandas as pd
 import subprocess
 import glob
+from zipfile import ZipFile, ZIP_DEFLATED
 
 
 # update mypath - 'canlib32.dll' must reside here
@@ -252,7 +253,7 @@ class App(customtkinter.CTk):
         # configure window
         self.title("DPMU Control Panel - Python Software Interface")
         # self.geometry(f"{1730}x{900}")
-        self.geometry('1730x950+0+0')
+        self.geometry('1920x1080+0+0')
         customtkinter.set_widget_scaling(0.90)
         # configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=0)
@@ -1696,6 +1697,7 @@ class App(customtkinter.CTk):
         time.ccs = 0x23
         #value = int(self.time_entry.get())
         value = int( timer.time() )
+        print(f"Timesatmp:{value}")
         time.set_data_byte4((value    ) & 0xff)
         time.set_data_byte5((value>> 8) & 0xff)
         time.set_data_byte6((value>>16) & 0xff)
@@ -2781,6 +2783,23 @@ def setNodeId(value):
     dpmu_type_od.setID(value)
     nodeid_od.setID(value)
 
+# def compressFile(unZipedFile):
+#     archive_name = f'{unZipedFile}.zip'
+#     # below one line of code will create a 'Zip' in the current working directory
+#     with zipfile.ZipFile(archive_name, 'w') as file:
+#         print("{} is created.".format(archive_name))
+#         file.write(unZipedFile)
+
+#     with zipfile.ZipFile(archive_name, 'r') as file:
+#         print(file.namelist())
+
+def compressFile(unZipedFile):
+    archive_name = f'{unZipedFile}.zip'
+    arquivoZip = ZipFile(archive_name, "w", compression=ZIP_DEFLATED)
+    arquivoZip.write(unZipedFile)
+    arquivoZip.close()        
+    arquivoZip = ZipFile(archive_name, "r", compression=ZIP_DEFLATED)
+    print(f"Zip file {archive_name} created with: {arquivoZip.namelist()}")
 
 def convertDPMULOGFilesToXlsx():
     
@@ -2798,6 +2817,7 @@ def convertDPMULOGFilesToXlsx():
     
     DPMUCsvDir = f"{DPMULogDir}\\csv"
     DPMUXlsDir = f"{DPMULogDir}\\xls"
+    
     
     DPMULogHexFileList = glob.glob(f"C:\\DPMU_LOG\\*.hex")
     
@@ -2841,12 +2861,16 @@ def convertDPMULOGFilesToXlsx():
 
         try:
             os.system(f"start {DPMULogXlsFile}")
-            zipFileCmd = f'\"c:\\Program Files\\7-Zip\\7z.exe\" -mx=9 a \"{DPMULogHexFile}.zip\" \"{DPMULogHexFile}\"'
-            print(f"Zip Cmd {zipFileCmd}")
-            os.system(zipFileCmd)
-            
         except Exception as ex:
             print(f"Error {ex} trying to open excel file: {DPMULogXlsFile}")
+
+        try:
+            print(f"Compressing file {DPMULogHexFile} into {DPMULogHexFile}.zip")
+            compressFile(DPMULogHexFile)
+            print(f"Deleting file {DPMULogHexFile}")
+            os.remove(DPMULogHexFile)
+        except Exception as ex:
+            print(f"Could not  compress or delete file {DPMULogHexFile}. Error:[{ex}]")
 
 def verifyXLSInUse( xlsPath ):
     for proc in psutil.process_iter():
