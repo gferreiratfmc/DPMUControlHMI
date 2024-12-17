@@ -1,1 +1,1 @@
-pyinstaller --onefile .\dpmu_canopenNormalVoltage.py
+pyinstaller --onefile .\DPMUControlPanel.py
